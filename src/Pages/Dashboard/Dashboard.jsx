@@ -148,9 +148,9 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans w-[100vw] overflow-x-hidden absolute top-0 left-0 z-50">
+        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-[#0B1C2C]/5 text-slate-900 font-sans w-[100vw] overflow-x-hidden absolute top-0 left-0 z-50">
             {/* Header */}
-            <div className="bg-white border-b border-black/5 px-8 py-4 flex justify-between items-center sticky top-0 z-20">
+            <div className="bg-white/95 backdrop-blur-sm border-b border-[#0B1C2C]/10 px-8 py-4 flex justify-between items-center sticky top-0 z-20">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-sm">
                         <Wallet size={20} />
@@ -166,7 +166,7 @@ const Dashboard = () => {
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-105 hover:shadow-lg active:scale-95">
+                    className="bg-emerald-500 hover:bg-emerald-600 shadow-[0_0_10px_rgba(0,229,168,0.2)] text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-105 hover:shadow-lg active:scale-95">
                     <Plus size={18} />
                     Add Expense
                 </button>
@@ -174,7 +174,7 @@ const Dashboard = () => {
 
             <main className="max-w-6xl mx-auto px-8 py-8 space-y-6">
                 {/* Profile Card */}
-                <div className="bg-white rounded-2xl p-6 border border-black/5 shadow-sm flex justify-between items-center group transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-md">
+                <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 border border-[#0B1C2C]/10 shadow-sm flex justify-between items-center group transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-lg">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                             <Wallet size={24} />
@@ -199,7 +199,7 @@ const Dashboard = () => {
                 {/* Summary Row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Total Budget */}
-                    <div className="bg-white p-6 rounded-2xl border border-black/5 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-md">
+                    <div className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl border border-[#0B1C2C]/10 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-lg">
                         <div className="flex justify-between items-start mb-4">
                             <p className="text-sm font-medium text-slate-500">
                                 Total Budget
@@ -217,7 +217,7 @@ const Dashboard = () => {
                     </div>
 
                     {/* Budget vs Spent */}
-                    <div className="bg-white p-6 rounded-2xl border border-black/5 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-md">
+                    <div className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl border border-[#0B1C2C]/10 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-lg">
                         <div className="flex justify-between items-start mb-4">
                             <p className="text-sm font-medium text-slate-500">
                                 Budget vs Spent
@@ -234,7 +234,7 @@ const Dashboard = () => {
                         </h3>
                         <div className="w-full h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
                             <div
-                                className="h-full bg-emerald-500 rounded-full transition-all duration-700 ease-in-out"
+                                className="h-full bg-emerald-500 shadow-[0_0_6px_rgba(0,229,168,0.15)] rounded-full transition-all duration-700 ease-in-out"
                                 style={{
                                     width: `${Math.min(spendingPercentage, 100)}%`,
                                 }}
@@ -248,7 +248,7 @@ const Dashboard = () => {
                     </div>
 
                     {/* Remaining */}
-                    <div className="bg-white p-6 rounded-2xl border border-black/5 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-md">
+                    <div className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl border border-[#0B1C2C]/10 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-lg">
                         <div className="flex justify-between items-start mb-4">
                             <p className="text-sm font-medium text-slate-500">
                                 Remaining
@@ -270,7 +270,7 @@ const Dashboard = () => {
 
                 {/* Goals & Top Category */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white p-6 rounded-2xl border border-black/5 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-md group">
+                    <div className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl border border-[#0B1C2C]/10 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-lg group">
                         <div className="flex justify-between items-start mb-4">
                             <div className="flex items-center gap-2">
                                 <div className="text-emerald-500">
@@ -304,7 +304,7 @@ const Dashboard = () => {
                             <>
                                 <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-4">
                                     <div
-                                        className="h-full bg-emerald-500 rounded-full transition-all duration-700 ease-in-out"
+                                        className="h-full bg-emerald-500 shadow-[0_0_6px_rgba(0,229,168,0.15)] rounded-full transition-all duration-700 ease-in-out"
                                         style={{
                                             width: `${Math.min(((income - totalSpent) / savings) * 100, 100)}%`,
                                         }}
@@ -343,7 +343,7 @@ const Dashboard = () => {
                         )}
                     </div>
 
-                    <div className="bg-white p-6 rounded-2xl border border-black/5 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-md">
+                    <div className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl border border-[#0B1C2C]/10 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-lg">
                         <div className="flex items-center gap-2 mb-4 text-orange-500">
                             <TrendingUp size={20} />
                             <h3 className="font-semibold text-slate-900">
@@ -417,7 +417,7 @@ const Dashboard = () => {
                     {totalSpent === 0 && (
                         <button
                             onClick={() => setIsModalOpen(true)}
-                            className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 font-medium transition-all flex items-center justify-center gap-2">
+                            className="w-full mt-4 bg-emerald-500 hover:bg-emerald-600 shadow-[0_0_10px_rgba(0,229,168,0.2)] text-white rounded-xl py-3 font-medium transition-all flex items-center justify-center gap-2">
                             <Plus size={18} />
                             Add Your First Expense
                         </button>
@@ -429,7 +429,7 @@ const Dashboard = () => {
                     <h3 className="text-sm font-semibold text-slate-900 mb-3">
                         Spending Overview
                     </h3>
-                    <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-8 pb-4 relative overflow-hidden h-[300px]">
+                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-[#0B1C2C]/10 shadow-sm p-8 pb-4 relative overflow-hidden h-[300px]">
                         {/* Chart Grid Lines */}
                         <div className="absolute inset-0 px-12 py-8 pointer-events-none flex flex-col justify-between">
                             {[10000, 7500, 5000, 2500, 0].map((val, i) => (
@@ -439,7 +439,7 @@ const Dashboard = () => {
                                     <span className="text-[10px] text-slate-400 w-8 pr-2 text-right">
                                         {val}-
                                     </span>
-                                    <div className="flex-1 border-b border-dashed border-slate-200"></div>
+                                    <div className="flex-1 border-b border-dashed border-slate-300/40"></div>
                                 </div>
                             ))}
                         </div>
@@ -505,7 +505,7 @@ const Dashboard = () => {
 
                         {totalSpent === 0 && (
                             <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-10 animate-in fade-in duration-700">
-                                <div className="bg-white px-6 py-4 rounded-xl shadow-sm border border-slate-100 text-center flex flex-col items-center">
+                                <div className="bg-white/95 px-6 py-4 rounded-xl shadow-sm border border-slate-300/60 text-center flex flex-col items-center">
                                     <TrendingUp
                                         size={24}
                                         className="text-slate-300 mb-2"
@@ -547,7 +547,7 @@ const Dashboard = () => {
                             return (
                                 <div
                                     key={cat.id}
-                                    className="bg-white rounded-xl border border-black/5 shadow-sm p-5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 group">
+                                    className="bg-white/95 backdrop-blur-sm rounded-xl border border-[#0B1C2C]/10 shadow-sm p-5 transition-all duration-300 hover:shadow-md hover:-translate-y-1 group">
                                     <div className="flex justify-between items-start mb-2">
                                         <h4 className="font-semibold text-slate-900">
                                             {cat.name}
@@ -567,7 +567,7 @@ const Dashboard = () => {
                                     </div>
                                     <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                         <div
-                                            className={`h-full rounded-full transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] ${isExceeded ? "bg-red-500 animate-pulse" : "bg-emerald-500"}`}
+                                            className={`h-full rounded-full transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] ${isExceeded ? "bg-red-500 animate-pulse" : "bg-emerald-500 shadow-[0_0_6px_rgba(0,229,168,0.15)]"}`}
                                             style={{
                                                 width: `${Math.min(usedPct, 100)}%`,
                                             }}
@@ -600,7 +600,7 @@ const Dashboard = () => {
                             Recent Expenses
                         </h3>
                         {expenses.length > 0 && (
-                            <select className="text-xs font-medium text-slate-600 border border-slate-200 rounded-lg px-2 py-1 outline-none bg-white">
+                            <select className="text-xs font-medium text-slate-600 border border-slate-300/60 rounded-lg px-2 py-1 outline-none bg-white/95">
                                 <option>All Categories</option>
                                 {categories.map((c) => (
                                     <option key={c.id}>{c.name}</option>
@@ -608,7 +608,7 @@ const Dashboard = () => {
                             </select>
                         )}
                     </div>
-                    <div className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden min-h-[150px]">
+                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-[#0B1C2C]/10 shadow-sm overflow-hidden min-h-[150px]">
                         {expenses.length === 0 ? (
                             <div className="flex flex-col items-center justify-center p-12 text-center h-full animate-in fade-in duration-500">
                                 <h4 className="text-sm font-semibold text-slate-600">
@@ -619,7 +619,7 @@ const Dashboard = () => {
                                 </p>
                                 <button
                                     onClick={() => setIsModalOpen(true)}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2 rounded-lg font-medium transition-colors">
+                                    className="bg-emerald-500 hover:bg-emerald-600 shadow-[0_0_10px_rgba(0,229,168,0.2)] text-white text-xs px-4 py-2 rounded-lg font-medium transition-colors">
                                     + Add Expense
                                 </button>
                             </div>
@@ -628,7 +628,7 @@ const Dashboard = () => {
                                 {expenses.map((expense) => (
                                     <div
                                         key={expense.id}
-                                        className="p-4 flex items-center justify-between animate-in slide-in-from-top-4 fade-in duration-500 group">
+                                        className="p-4 flex items-center justify-between animate-in slide-in-from-top-4 fade-in duration-500 group hover:bg-slate-100/60 transition-colors">
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-medium text-slate-900 text-sm">
@@ -675,8 +675,8 @@ const Dashboard = () => {
                         className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300"
                         onClick={() => setIsModalOpen(false)}
                     />
-                    <div className="bg-white rounded-2xl w-full max-w-md m-4 relative z-10 shadow-2xl animate-in fade-in zoom-in-95 slide-in-from-bottom-8 duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden">
-                        <div className="px-6 py-4 flex justify-between items-center border-b border-slate-100">
+                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl w-full max-w-md m-4 relative z-10 shadow-2xl animate-in fade-in zoom-in-95 slide-in-from-bottom-8 duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden">
+                        <div className="px-6 py-4 flex justify-between items-center border-b border-slate-300/60">
                             <h2 className="text-lg font-bold text-slate-900">
                                 Add Expense
                             </h2>
@@ -703,7 +703,7 @@ const Dashboard = () => {
                                             category: e.target.value,
                                         })
                                     }
-                                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all appearance-none bg-white font-medium">
+                                    className="w-full border border-slate-300/60 rounded-xl px-4 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all appearance-none bg-white/95 font-medium">
                                     {categories.map((c) => (
                                         <option key={c.id} value={c.name}>
                                             {c.name}
@@ -736,7 +736,7 @@ const Dashboard = () => {
                                                     amount: null,
                                                 });
                                         }}
-                                        className={`w-full border ${formErrors.amount ? "border-red-400 focus:ring-red-100 animate-[shake_0.2s_ease-in-out_0s_2]" : "border-slate-200 focus:border-blue-500 focus:ring-blue-100"} rounded-xl pl-8 pr-4 py-2.5 text-sm outline-none focus:ring-2 transition-all font-medium text-slate-900 placeholder:font-normal`}
+                                        className={`w-full border ${formErrors.amount ? "border-red-400 focus:ring-red-100 animate-[shake_0.2s_ease-in-out_0s_2]" : "border-slate-300/60 focus:border-blue-500 focus:ring-blue-100"} rounded-xl pl-8 pr-4 py-2.5 text-sm outline-none focus:ring-2 transition-all font-medium text-slate-900 placeholder:font-normal`}
                                     />
                                     <div className="absolute right-3 top-[3px] bottom-[3px] w-6 bg-slate-100 rounded-md flex flex-col pointer-events-none">
                                         <div className="h-1/2 flex items-end justify-center pb-0.5">
@@ -782,7 +782,7 @@ const Dashboard = () => {
                                                 description: null,
                                             });
                                     }}
-                                    className={`w-full border ${formErrors.description ? "border-red-400 focus:ring-red-100" : "border-slate-200 focus:border-blue-500 focus:ring-blue-100"} rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 transition-all font-medium text-slate-900 placeholder:font-normal`}
+                                    className={`w-full border ${formErrors.description ? "border-red-400 focus:ring-red-100" : "border-slate-300/60 focus:border-blue-500 focus:ring-blue-100"} rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 transition-all font-medium text-slate-900 placeholder:font-normal`}
                                 />
                             </div>
 
@@ -800,7 +800,7 @@ const Dashboard = () => {
                                             date: e.target.value,
                                         })
                                     }
-                                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium bg-white"
+                                    className="w-full border border-slate-300/60 rounded-xl px-4 py-2.5 text-sm text-slate-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium bg-white/95"
                                 />
                             </div>
 
@@ -808,12 +808,12 @@ const Dashboard = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="flex-1 py-3 border border-slate-200 text-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-50 transition-colors">
+                                    className="flex-1 py-3 border border-slate-300/60 text-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-50 transition-colors">
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+                                    className="flex-1 py-3 bg-emerald-500 shadow-[0_0_10px_rgba(0,229,168,0.2)] text-white rounded-xl font-semibold text-sm hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
                                     <Plus size={16} />
                                     Add Expense
                                 </button>
