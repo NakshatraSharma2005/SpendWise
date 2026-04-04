@@ -42,10 +42,13 @@ const Navbar = () => {
 
                   {/* CTAs */}
                   <div className="flex items-center gap-4">
-                      <button className="px-5 py-2 text-sm font-medium rounded-full border border-slate-600 hover:bg-slate-800 transition-colors">
+                      <button
+                          className="px-5 py-2 text-sm font-medium rounded-full border border-slate-600 hover:bg-slate-800 transition-colors"
+                          onClick={() => navigate("/login")}>
                           Login
                       </button>
-                      <button className="px-5 py-2 text-sm font-medium bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-teal-600 hover:to-emerald-500 text-white rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.7)] hover:-translate-y-0.5">
+                      <button className="px-5 py-2 text-sm font-medium bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-teal-600 hover:to-emerald-500 text-white rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.7)] hover:-translate-y-0.5"
+                      onClick={() => navigate("/signup")}>
                           Get Started
                       </button>
                   </div>
