@@ -1,8 +1,10 @@
 import React from 'react';
 import { Wallet } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 
 const Navbar = () => {
+  const navigate = useNavigate();
   return (
       <nav className="sticky top-0 z-50 w-full bg-[#0f172a]/90 backdrop-blur border-b border-white/10 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
