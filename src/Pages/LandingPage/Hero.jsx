@@ -13,7 +13,7 @@ const Hero = () => {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-sm font-medium mb-8">
           <span>⚡</span>
-          <span>AI-Powered Expense Tracking</span>
+          <span>Personalized Expense Tracking</span>
         </div>
 
         {/* Headline */}

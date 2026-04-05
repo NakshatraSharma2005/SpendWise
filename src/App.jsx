@@ -4,7 +4,7 @@ import Hero from "./Pages/LandingPage/Hero";
 import Features from "./Pages/LandingPage/Features";
 import HowItWorks from "./Pages/LandingPage/HowItWorks";
 import Personalization from "./Pages/LandingPage/Personalization";
-import AIInsights from "./Pages/LandingPage/AIInsights";
+// import AIInsights from "./Pages/LandingPage/AIInsights";
 import Testimonials from "./Pages/LandingPage/Testimonials";
 import CTA from "./Pages/LandingPage/CTA";
 import Footer from "./Pages/LandingPage/Footer";
@@ -22,7 +22,7 @@ function LandingPage() {
                 <Features />
                 <HowItWorks />
                 <Personalization />
-                <AIInsights />
+                {/* <AIInsights /> */}
                 <Testimonials />
                 <CTA />
             </main>

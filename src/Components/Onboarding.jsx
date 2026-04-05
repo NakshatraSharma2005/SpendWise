@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Wallet, DollarSign, Target, CheckCircle, Loader2 } from "lucide-react";
+import { Wallet, IndianRupee, Target, CheckCircle, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Onboarding() {
@@ -145,14 +145,14 @@ export default function Onboarding() {
                                 <div className="mt-8">
                                     <InputBox
                                         icon={
-                                            <DollarSign className="w-5 h-5 text-[#94A3B8]" />
+                                            <IndianRupee className="w-5 h-5 text-[#94A3B8]" />
                                         }
                                         placeholder="5000"
                                         value={income}
                                         onChange={(e) =>
                                             setIncome(e.target.value)
                                         }
-                                        subtitle="Enter your estimated monthly income in USD"
+                                        subtitle="Enter your estimated monthly income in INR"
                                     />
                                 </div>
                             </Card>
@@ -411,7 +411,7 @@ function AnalyzingScreen({
                 navigate("/dashboard", {
                     state: { income, role, budget, category, savings },
                 });
-            }, 1000);
+            }, 3000);
 
             return () => clearTimeout(timer);
         }
@@ -443,7 +443,7 @@ function AnalyzingScreen({
                 <SequenceItem
                     show={progress >= 2}
                     completed={progress > 2}
-                    text="Generating AI insights"
+                    text="Generating personalized insights"
                 />
                 <SequenceItem
                     show={progress >= 3}

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, use } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
     TrendingUp,
     PieChart,
@@ -20,7 +20,7 @@ export default function AuthPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const signUpRef = useRef<HTMLDivElement>(null);
     const loginRef = useRef<HTMLDivElement>(null);
-    const [containerHeight, setContainerHeight] = useState<number>(0);
+    const [containerHeight, setContainerHeight] = useState(0);
     const [Name, setName] = useState("");
     const [Email, setEmail] = useState("");
     const [Password, setPassword] = useState("");
@@ -94,7 +94,7 @@ export default function AuthPage() {
                     </h1>
 
                     <p className="text-[#94A3B8] text-lg lg:text-xl mb-10 max-w-md leading-relaxed font-light">
-                        Smart expense tracking with AI-powered insights tailored
+                        Smart expense tracking with personalized insights tailored
                         for your lifestyle.
                     </p>
 
