@@ -24,7 +24,7 @@ const Hero = () => {
 
         {/* Subtitle */}
         <p className="text-lg md:text-xl text-slate-400 max-w-2xl mb-10 leading-relaxed">
-          Track your expenses, understand your spending habits, and get AI-powered insights to save more every month.
+          Track your expenses, understand your spending habits, and get personalized insights to save more every month.
         </p>
 
         {/* Action Buttons */}
