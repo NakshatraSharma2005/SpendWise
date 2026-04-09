@@ -8,10 +8,10 @@ export default function Onboarding() {
     const [direction, setDirection] = useState(1); // 1 = forward, -1 = backward (if needed)
 
     // Form State
-    const [role, setRole] = useState(null); // 'student' | 'working'
+    const [role, setRole] = useState(null);
     const [income, setIncome] = useState("");
     const [budget, setBudget] = useState("");
-    const [category, setCategory] = useState(null); // 'food' | 'shopping' | 'travel' | 'entertainment'
+    const [category, setCategory] = useState(null);
     const [savings, setSavings] = useState("");
 
     // Animation State
@@ -407,10 +407,36 @@ function AnalyzingScreen({
     }, []);
     useEffect(() => {
         if (progress === 4) {
+            const saveQuizData = async () => {
+                try {
+                    const token = localStorage.getItem("spendwise_token");
+                    if (!token) {
+                        navigate("/login");
+                        return;
+                    }
+                    const response = await fetch("http://localhost:5000/api/user/quiz", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            userType: role,
+                            monthlyIncome: Number(income),
+                            monthlyBudget: Number(budget),
+                            savingGoal: Number(savings)
+                        })
+                    });
+                    
+                    navigate("/dashboard");
+                } catch(err) {
+                    console.error(err);
+                    navigate("/dashboard");
+                }
+            };
+            
             const timer = setTimeout(() => {
-                navigate("/dashboard", {
-                    state: { income, role, budget, category, savings },
-                });
+                saveQuizData();
             }, 3000);
 
             return () => clearTimeout(timer);

@@ -14,7 +14,7 @@ import {
     CheckCircle2,
 } from "lucide-react";
 import Onboarding from "../../Components/Onboarding.jsx";
-import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const AnimatedNumber = ({ value }) => {
     const [displayValue, setDisplayValue] = useState(0);
@@ -47,8 +47,13 @@ const AnimatedNumber = ({ value }) => {
 };
 
 const Dashboard = () => {
-    const location = useLocation();
-    const { income, role, budget, category, savings } = location.state || {};
+    const navigate = useNavigate();
+    
+    // User Quiz Defaults
+    const [income, setIncome] = useState(0);
+    const [role, setRole] = useState("working");
+    const [budget, setBudget] = useState(0);
+    const [savings, setSavings] = useState(0);
 
     const [categories, setCategories] = useState([
         { id: 1, name: "Food", budget: 8000, spent: 0 },
@@ -62,6 +67,80 @@ const Dashboard = () => {
 
     const [expenses, setExpenses] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleLogout = () => {
+        localStorage.removeItem("spendwise_token");
+        navigate("/login");
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const token = localStorage.getItem("spendwise_token");
+            if (!token) {
+                navigate("/");
+                return;
+            }
+
+            try {
+                // Fetch User Profile Dashboard Limits
+                const profileRes = await fetch("http://localhost:5000/api/user/profile", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (profileRes.status === 401) {
+                    localStorage.removeItem("spendwise_token");
+                    navigate("/login");
+                    return;
+                }
+
+                if (profileRes.ok) {
+                    const profileData = await profileRes.json();
+                    if (profileData.quizData) {
+                        setIncome(profileData.quizData.monthlyIncome || 0);
+                        setRole(profileData.quizData.userType || "working");
+                        setBudget(profileData.quizData.monthlyBudget || 0);
+                        setSavings(profileData.quizData.savingGoal || 0);
+                    }
+                }
+
+                // Fetch Expenses
+                const expensesRes = await fetch("http://localhost:5000/api/expenses/get", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                
+                if (expensesRes.status === 401) {
+                    localStorage.removeItem("spendwise_token");
+                    navigate("/login");
+                    return;
+                }
+
+                if (expensesRes.ok) {
+                    const expensesData = await expensesRes.json();
+                    
+                    const formattedExpenses = expensesData.map(e => ({
+                        id: e._id,
+                        category: e.category,
+                        amount: e.amount,
+                        description: e.title,
+                        date: e.date
+                    }));
+                    setExpenses(formattedExpenses);
+                    
+                    setCategories(prevCategories => {
+                       const newCategories = prevCategories.map(cat => ({ ...cat, spent: 0 }));
+                       formattedExpenses.forEach(exp => {
+                           const cat = newCategories.find(c => c.name === exp.category);
+                           if (cat) cat.spent += exp.amount;
+                       });
+                       return newCategories;
+                    });
+                }
+            } catch (err) {
+                console.error("Dashboard Fetch Error", err);
+            }
+        };
+        fetchData();
+    }, [navigate]);
 
     // Modal Form State
     const [newExpense, setNewExpense] = useState({
@@ -81,7 +160,7 @@ const Dashboard = () => {
         return prev && prev.spent > current.spent ? prev : current;
     }, null);
 
-    const handleAddExpense = (e) => {
+    const handleAddExpense = async (e) => {
         e.preventDefault();
 
         if (!newExpense.description.trim()) {
@@ -95,55 +174,99 @@ const Dashboard = () => {
             return;
         }
 
-        // Add expense
-        const expenseToAdd = {
-            id: Date.now(),
-            ...newExpense,
-            amount: amount,
-            categoryData: categories.find(
-                (c) => c.name === newExpense.category,
-            ),
-        };
+        try {
+            const token = localStorage.getItem("spendwise_token");
+            if (!token) {
+                navigate("/login");
+                return;
+            }
+            const response = await fetch("http://localhost:5000/api/expenses/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    title: newExpense.description,
+                    amount: amount,
+                    category: newExpense.category,
+                    date: newExpense.date
+                })
+            });
 
-        setExpenses([expenseToAdd, ...expenses]);
+            if (response.ok) {
+                const addedExpenseData = await response.json();
+                
+                const expenseToAdd = {
+                    id: addedExpenseData._id,
+                    description: addedExpenseData.title,
+                    amount: addedExpenseData.amount,
+                    category: addedExpenseData.category,
+                    date: addedExpenseData.date,
+                    categoryData: categories.find(
+                        (c) => c.name === addedExpenseData.category,
+                    ),
+                };
 
-        // Update category spent amount
-        setCategories(
-            categories.map((cat) =>
-                cat.name === newExpense.category
-                    ? { ...cat, spent: cat.spent + amount }
-                    : cat,
-            ),
-        );
+                setExpenses([expenseToAdd, ...expenses]);
 
-        // Reset and close
-        setNewExpense({
-            category: "Food",
-            amount: "",
-            description: "",
-            date: new Date().toISOString().split("T")[0],
-        });
-        setFormErrors({});
-        setIsModalOpen(false);
+                setCategories(
+                    categories.map((cat) =>
+                        cat.name === addedExpenseData.category
+                            ? { ...cat, spent: cat.spent + amount }
+                            : cat,
+                    ),
+                );
+
+                setNewExpense({
+                    category: "Food",
+                    amount: "",
+                    description: "",
+                    date: new Date().toISOString().split("T")[0],
+                });
+                setFormErrors({});
+                setIsModalOpen(false);
+            }
+        } catch (error) {
+            console.error("Add expense error", error);
+        }
     };
 
-    const handleDeleteExpense = (id) => {
-        const expenseToDelete = expenses.find((e) => e.id === id);
-        if (expenseToDelete) {
-            setExpenses(expenses.filter((e) => e.id !== id));
-            setCategories(
-                categories.map((cat) =>
-                    cat.name === expenseToDelete.category
-                        ? {
-                              ...cat,
-                              spent: Math.max(
-                                  0,
-                                  cat.spent - expenseToDelete.amount,
-                              ),
-                          }
-                        : cat,
-                ),
-            );
+    const handleDeleteExpense = async (id) => {
+        try {
+            const token = localStorage.getItem("spendwise_token");
+            if (!token) {
+                navigate("/login");
+                return;
+            }
+            const response = await fetch(`http://localhost:5000/api/expenses/delete/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const expenseToDelete = expenses.find((e) => e.id === id);
+                if (expenseToDelete) {
+                    setExpenses(expenses.filter((e) => e.id !== id));
+                    setCategories(
+                        categories.map((cat) =>
+                            cat.name === expenseToDelete.category
+                                ? {
+                                      ...cat,
+                                      spent: Math.max(
+                                          0,
+                                          cat.spent - expenseToDelete.amount,
+                                      ),
+                                  }
+                                : cat,
+                        ),
+                    );
+                }
+            }
+        } catch (err) {
+             console.error("Failed to delete", err);
         }
     };
 
@@ -164,12 +287,19 @@ const Dashboard = () => {
                         </p>
                     </div>
                 </div>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-emerald-500 hover:bg-emerald-600 shadow-[0_0_10px_rgba(0,229,168,0.2)] text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-105 hover:shadow-lg active:scale-95">
-                    <Plus size={18} />
-                    Add Expense
-                </button>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={handleLogout}
+                        className="border border-red-500/30 text-red-500 hover:bg-red-50 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] shadow-sm">
+                        Logout
+                    </button>
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="bg-emerald-500 hover:bg-emerald-600 shadow-[0_0_10px_rgba(0,229,168,0.2)] text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-105 hover:shadow-lg active:scale-95">
+                        <Plus size={18} />
+                        Add Expense
+                    </button>
+                </div>
             </div>
 
             <main className="max-w-6xl mx-auto px-8 py-8 space-y-6">

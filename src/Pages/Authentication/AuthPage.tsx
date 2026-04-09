@@ -8,8 +8,10 @@ import {
     Lock,
     Eye,
     EyeOff,
+    AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 export default function AuthPage() {
     const navigate = useNavigate();
@@ -24,6 +26,7 @@ export default function AuthPage() {
     const [Name, setName] = useState("");
     const [Email, setEmail] = useState("");
     const [Password, setPassword] = useState("");
+    const [globalError, setGlobalError] = useState("");
 
     // Measure content to animate container height
     useEffect(() => {
@@ -33,24 +36,85 @@ export default function AuthPage() {
             setContainerHeight(signUpRef.current.offsetHeight);
         }
     }, [isLogin]);
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e: any) => {
         e.preventDefault();
+        setGlobalError(""); // clear previous error
 
-        if (!Name.trim()) {
-            alert("Please enter your first name");
-            return;
-        }
+        if (!isLogin) {
+            if (!Name.trim()) {
+                setGlobalError("Please enter your full name.");
+                return;
+            }
 
-        if (!Email.includes("@")) {
-            alert("Enter a valid email");
-            return;
-        }
+            if (!Email.includes("@")) {
+                setGlobalError("Please enter a valid email address.");
+                return;
+            }
 
-        if (Password.length < 6) {
-            alert("Password must be at least 6 characters");
-            return;
+            if (Password.length < 6) {
+                setGlobalError("Password must be at least 6 characters.");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:5000/api/auth/signup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: Name, email: Email, password: Password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem("spendwise_token", data.token);
+                    navigate("/onboarding");
+                } else {
+                    setGlobalError(data.message || "Signup failed.");
+                }
+            } catch (err) {
+                setGlobalError("Something went wrong, please try again.");
+            }
+        } else {
+            if (!Email.includes("@") || Password.length < 1) {
+                setGlobalError("Invalid email or password.");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:5000/api/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: Email, password: Password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem("spendwise_token", data.token);
+                    navigate("/dashboard");
+                } else {
+                    setGlobalError(data.message || "Login failed.");
+                }
+            } catch (err) {
+                setGlobalError("Something went wrong, please try again.");
+            }
         }
-        navigate("/onboarding");
+    };
+
+    const handleGoogleSuccess = async (credentialResponse: any) => {
+        setGlobalError("");
+        try {
+            const res = await fetch("http://localhost:5000/api/auth/google", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ credential: credentialResponse.credential })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                localStorage.setItem("spendwise_token", data.token);
+                navigate("/dashboard");
+            } else {
+                setGlobalError(data.message || "Google Login failed.");
+            }
+        } catch (err) {
+            setGlobalError("Something went wrong, please try again.");
+        }
     };
 
     return (
@@ -166,6 +230,13 @@ export default function AuthPage() {
                                 Login
                             </button>
                         </div>
+
+                        {globalError && (
+                            <div className="mb-6 p-3.5 rounded-xl bg-[#ff4d4d]/10 border border-[#ff4d4d]/20 text-[#ff4d4d] text-[13px] font-semibold flex items-center gap-2.5 animate-[fadeIn_0.3s_ease-in-out]">
+                                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                                <span>{globalError}</span>
+                            </div>
+                        )}
 
                         {/* Form Container (Smooth Auto Height) */}
                         <div
@@ -286,52 +357,11 @@ export default function AuthPage() {
                                     </div>
 
                                     {/* Social Buttons */}
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <button
-                                            type="button"
-                                            className="flex items-center justify-center gap-2.5 py-3 rounded-xl bg-black/20 border border-white/5 text-gray-300 text-[14px] font-bold hover:bg-white/5 hover:text-white transition-all group">
-                                            <svg
-                                                width="18"
-                                                height="18"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                className="group-hover:scale-110 transition-transform">
-                                                <path
-                                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                                                    fill="#4285F4"
-                                                />
-                                                <path
-                                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                                                    fill="#34A853"
-                                                />
-                                                <path
-                                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                                                    fill="#FBBC05"
-                                                />
-                                                <path
-                                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                                                    fill="#EA4335"
-                                                />
-                                            </svg>
-                                            Google
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="flex items-center justify-center gap-2.5 py-3 rounded-xl bg-black/20 border border-white/5 text-gray-300 text-[14px] font-bold hover:bg-white/5 hover:text-white transition-all group">
-                                            <svg
-                                                width="18"
-                                                height="18"
-                                                viewBox="0 0 24 24"
-                                                fill="white"
-                                                className="group-hover:scale-110 transition-transform">
-                                                <path
-                                                    fillRule="evenodd"
-                                                    clipRule="evenodd"
-                                                    d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"
-                                                />
-                                            </svg>
-                                            GitHub
-                                        </button>
+                                    <div className="flex justify-center mt-2">
+                                        <GoogleLogin
+                                            onSuccess={handleGoogleSuccess}
+                                            onError={() => setGlobalError("Google Login Failed")}
+                                        />
                                     </div>
                                 </form>
                             </div>
@@ -342,7 +372,7 @@ export default function AuthPage() {
                                 className={`absolute top-0 left-0 w-full transition-all duration-500 ease-in-out ${!isLogin ? "opacity-0 translate-y-4 pointer-events-none" : "opacity-100 translate-y-0 "}`}>
                                 <form
                                     className="flex flex-col gap-4"
-                                    onSubmit={(e) => e.preventDefault()}>
+                                    onSubmit={handleSubmit}>
                                     <div className="flex flex-col gap-1.5">
                                         <label className="text-[13px] font-semibold text-[#94A3B8]">
                                             Email Address
@@ -353,6 +383,8 @@ export default function AuthPage() {
                                             </div>
                                             <input
                                                 type="email"
+                                                value={Email}
+                                                onChange={(e) => setEmail(e.target.value)}
                                                 placeholder="you@example.com"
                                                 className="w-full bg-black/20 border border-white/5 text-white text-[15px] rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-[#00E5A8] focus:ring-1 focus:ring-[#00E5A8]/30 transition-all placeholder-gray-600 shadow-inner"
                                             />
@@ -380,6 +412,8 @@ export default function AuthPage() {
                                                         ? "text"
                                                         : "password"
                                                 }
+                                                value={Password}
+                                                onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="••••••••"
                                                 className="w-full bg-black/20 border border-white/5 text-white text-[15px] rounded-xl py-3 pl-11 pr-11 focus:outline-none focus:border-[#00E5A8] focus:ring-1 focus:ring-[#00E5A8]/30 transition-all placeholder-gray-600 shadow-inner"
                                             />
@@ -425,52 +459,11 @@ export default function AuthPage() {
                                     </div>
 
                                     {/* Social Buttons */}
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <button
-                                            type="button"
-                                            className="flex items-center justify-center gap-2.5 py-3 rounded-xl bg-black/20 border border-white/5 text-gray-300 text-[14px] font-bold hover:bg-white/5 hover:text-white transition-all group">
-                                            <svg
-                                                width="18"
-                                                height="18"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                className="group-hover:scale-110 transition-transform">
-                                                <path
-                                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                                                    fill="#4285F4"
-                                                />
-                                                <path
-                                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                                                    fill="#34A853"
-                                                />
-                                                <path
-                                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                                                    fill="#FBBC05"
-                                                />
-                                                <path
-                                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                                                    fill="#EA4335"
-                                                />
-                                            </svg>
-                                            Google
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="flex items-center justify-center gap-2.5 py-3 rounded-xl bg-black/20 border border-white/5 text-gray-300 text-[14px] font-bold hover:bg-white/5 hover:text-white transition-all group">
-                                            <svg
-                                                width="18"
-                                                height="18"
-                                                viewBox="0 0 24 24"
-                                                fill="white"
-                                                className="group-hover:scale-110 transition-transform">
-                                                <path
-                                                    fillRule="evenodd"
-                                                    clipRule="evenodd"
-                                                    d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"
-                                                />
-                                            </svg>
-                                            GitHub
-                                        </button>
+                                    <div className="flex justify-center mt-2">
+                                        <GoogleLogin
+                                            onSuccess={handleGoogleSuccess}
+                                            onError={() => setGlobalError("Google Login Failed")}
+                                        />
                                     </div>
                                 </form>
                             </div>
