@@ -57,11 +57,18 @@ export default function AuthPage() {
             }
 
             try {
-                const response = await fetch("http://localhost:5000/api/auth/signup", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name: Name, email: Email, password: Password })
-                });
+                const response = await fetch(
+                    "https://spendwise-backend-e7xj.onrender.com/api/auth/signup",
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            name: Name,
+                            email: Email,
+                            password: Password,
+                        }),
+                    },
+                );
                 const data = await response.json();
                 if (response.ok) {
                     localStorage.setItem("spendwise_token", data.token);
@@ -79,11 +86,17 @@ export default function AuthPage() {
             }
 
             try {
-                const response = await fetch("http://localhost:5000/api/auth/login", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email: Email, password: Password })
-                });
+                const response = await fetch(
+                    "https://spendwise-backend-e7xj.onrender.com/api/auth/login",
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            email: Email,
+                            password: Password,
+                        }),
+                    },
+                );
                 const data = await response.json();
                 if (response.ok) {
                     localStorage.setItem("spendwise_token", data.token);
@@ -100,11 +113,16 @@ export default function AuthPage() {
     const handleGoogleSuccess = async (credentialResponse: any) => {
         setGlobalError("");
         try {
-            const res = await fetch("http://localhost:5000/api/auth/google", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ credential: credentialResponse.credential })
-            });
+            const res = await fetch(
+                "https://spendwise-backend-e7xj.onrender.com/api/auth/google",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        credential: credentialResponse.credential,
+                    }),
+                },
+            );
             const data = await res.json();
             if (res.ok) {
                 localStorage.setItem("spendwise_token", data.token);

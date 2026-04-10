@@ -130,9 +130,12 @@ const Dashboard = () => {
                 let fetchedBudget = 0;
 
                 // Fetch User Profile Dashboard Limits
-                const profileRes = await fetch("http://localhost:5000/api/user/profile", {
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
+                const profileRes = await fetch(
+                    "https://spendwise-backend-e7xj.onrender.com/api/user/profile",
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    },
+                );
 
                 if (profileRes.status === 401) {
                     localStorage.removeItem("spendwise_token");
@@ -168,9 +171,12 @@ const Dashboard = () => {
                 }
 
                 // Fetch Expenses
-                const expensesRes = await fetch("http://localhost:5000/api/expenses/get", {
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
+                const expensesRes = await fetch(
+                    "https://spendwise-backend-e7xj.onrender.com/api/expenses/get",
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    },
+                );
                 
                 if (expensesRes.status === 401) {
                     localStorage.removeItem("spendwise_token");
@@ -258,19 +264,22 @@ const Dashboard = () => {
                 navigate("/login");
                 return;
             }
-            const response = await fetch("http://localhost:5000/api/expenses/add", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+            const response = await fetch(
+                "https://spendwise-backend-e7xj.onrender.com/api/expenses/add",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        title: newExpense.description,
+                        amount: amount,
+                        category: newExpense.category,
+                        date: newExpense.date,
+                    }),
                 },
-                body: JSON.stringify({
-                    title: newExpense.description,
-                    amount: amount,
-                    category: newExpense.category,
-                    date: newExpense.date
-                })
-            });
+            );
 
             if (response.ok) {
                 const addedExpenseData = await response.json();
@@ -314,12 +323,15 @@ const Dashboard = () => {
                 navigate("/login");
                 return;
             }
-            const response = await fetch(`http://localhost:5000/api/expenses/delete/${id}`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            });
+            const response = await fetch(
+                `https://spendwise-backend-e7xj.onrender.com/api/expenses/delete/${id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
 
             if (response.ok) {
                 const expenseToDelete = expenses.find((e) => e.id === id);
@@ -367,11 +379,17 @@ const Dashboard = () => {
 
         try {
             const token = localStorage.getItem("spendwise_token");
-            const response = await fetch("http://localhost:5000/api/user/profile", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                body: JSON.stringify(profileEditForm)
-            });
+            const response = await fetch(
+                "https://spendwise-backend-e7xj.onrender.com/api/user/profile",
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(profileEditForm),
+                },
+            );
 
             if (response.ok) {
                 const data = await response.json();
@@ -415,11 +433,20 @@ const Dashboard = () => {
 
         try {
             const token = localStorage.getItem("spendwise_token");
-            const response = await fetch("http://localhost:5000/api/user/category-budget", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                body: JSON.stringify({ name: editingCategory.name, budget: amt })
-            });
+            const response = await fetch(
+                "https://spendwise-backend-e7xj.onrender.com/api/user/category-budget",
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        name: editingCategory.name,
+                        budget: amt,
+                    }),
+                },
+            );
 
             if (response.ok) {
                 const data = await response.json();

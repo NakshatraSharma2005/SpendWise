@@ -414,19 +414,22 @@ function AnalyzingScreen({
                         navigate("/login");
                         return;
                     }
-                    const response = await fetch("http://localhost:5000/api/user/quiz", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`
+                    const response = await fetch(
+                        "https://spendwise-backend-e7xj.onrender.com/api/user/quiz",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`,
+                            },
+                            body: JSON.stringify({
+                                userType: role,
+                                monthlyIncome: Number(income),
+                                monthlyBudget: Number(budget),
+                                savingGoal: Number(savings),
+                            }),
                         },
-                        body: JSON.stringify({
-                            userType: role,
-                            monthlyIncome: Number(income),
-                            monthlyBudget: Number(budget),
-                            savingGoal: Number(savings)
-                        })
-                    });
+                    );
                     
                     navigate("/dashboard");
                 } catch(err) {
