@@ -126,7 +126,32 @@ export default function AuthPage() {
             const data = await res.json();
             if (res.ok) {
                 localStorage.setItem("spendwise_token", data.token);
-                navigate("/onboarding");
+
+                // 👇 NEW LOGIC
+                const token = data.token;
+
+                const profileRes = await fetch(
+                    "https://spendwise-backend-e7xj.onrender.com/api/user/profile",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    },
+                );
+
+                const profileData = await profileRes.json();
+                const q = profileData.quizData;
+
+                if (
+                    !q ||
+                    !q.monthlyIncome ||
+                    !q.monthlyBudget ||
+                    !q.savingGoal
+                ) {
+                    navigate("/onboarding"); // 👈 pehli baar
+                } else {
+                    navigate("/dashboard"); // 👈 already user
+                }
             } else {
                 setGlobalError(data.message || "Google Login failed.");
             }
