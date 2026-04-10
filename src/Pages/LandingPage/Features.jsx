@@ -15,7 +15,7 @@ const featuresList = [
     },
     {
         icon: "🧠",
-        title: "personalized  Insights",
+        title: "Personalized  Insights",
         description:
             "Get personalized recommendations powered by personalized Insights to optimize your spending and increase savings.",
     },
