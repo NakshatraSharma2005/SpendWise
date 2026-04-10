@@ -126,7 +126,7 @@ export default function AuthPage() {
             const data = await res.json();
             if (res.ok) {
                 localStorage.setItem("spendwise_token", data.token);
-                navigate("/dashboard");
+                navigate("/onboarding");
             } else {
                 setGlobalError(data.message || "Google Login failed.");
             }
