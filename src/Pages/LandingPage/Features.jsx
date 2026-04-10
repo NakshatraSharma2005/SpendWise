@@ -1,36 +1,42 @@
 import React from 'react';
 
 const featuresList = [
-  {
-    icon: '₹',
-    title: 'Expense Tracking',
-    description: 'Effortlessly log and categorize all your expenses with smart auto-detection and receipt scanning.',
-  },
-  {
-    icon: '📊',
-    title: 'Smart Analytics',
-    description: 'Visualize your spending patterns with beautiful charts and comprehensive financial reports.',
-  },
-  {
-    icon: '🧠',
-    title: 'AI Insights',
-    description: 'Get personalized recommendations powered by AI to optimize your spending and increase savings.',
-  },
-  {
-    icon: '⏱',
-    title: 'Budget Management',
-    description: 'Set custom budgets for different categories and get alerts when you\'re close to limits.',
-  },
-  {
-    icon: '🎛',
-    title: 'Personalized Dashboard',
-    description: 'View all your financial data at a glance with a customizable dashboard tailored to your needs.',
-  },
-  {
-    icon: '✨',
-    title: 'Smart Goals',
-    description: 'Set savings goals and track your progress with AI-powered suggestions to reach them faster.',
-  },
+    {
+        icon: "₹",
+        title: "Expense Tracking",
+        description:
+            "Effortlessly log and categorize all your expenses with smart auto-detection and receipt scanning.",
+    },
+    {
+        icon: "📊",
+        title: "Smart Analytics",
+        description:
+            "Visualize your spending patterns with beautiful charts and comprehensive financial reports.",
+    },
+    {
+        icon: "🧠",
+        title: "personalized  Insights",
+        description:
+            "Get personalized recommendations powered by personalized Insights to optimize your spending and increase savings.",
+    },
+    {
+        icon: "⏱",
+        title: "Budget Management",
+        description:
+            "Set custom budgets for different categories and get alerts when you're close to limits.",
+    },
+    {
+        icon: "🎛",
+        title: "Personalized Dashboard",
+        description:
+            "View all your financial data at a glance with a customizable dashboard tailored to your needs.",
+    },
+    {
+        icon: "✨",
+        title: "Smart Goals",
+        description:
+            "Set savings goals and track your progress with personalized suggestions to reach them faster.",
+    },
 ];
 
 const Features = () => {

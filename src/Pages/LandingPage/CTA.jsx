@@ -24,7 +24,7 @@ const CTA = () => {
         </h2>
 
         <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Take control of your money with AI-powered insights. Sign up now and start tracking your expenses smarter, not harder.
+          Take control of your money with Personalized insights. Sign up now and start tracking your expenses smarter, not harder.
         </p>
 
         <button className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-teal-600 hover:to-emerald-500 text-white text-lg font-medium rounded-full transition-all duration-300 shadow-[0_0_30px_rgba(16,185,129,0.4)] hover:shadow-[0_0_50px_rgba(16,185,129,0.7)] hover:-translate-y-0.5 mb-8"

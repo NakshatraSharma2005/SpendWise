@@ -24,7 +24,7 @@ const Footer = () => {
                             <p className="text-slate-400 leading-relaxed mb-8 pr-4">
                                 Your smart companion for managing expenses,
                                 tracking budgets, and achieving financial goals
-                                with AI-powered insights.
+                                with personalized insights.
                             </p>
                             <div className="flex items-center gap-4">
                                 {[

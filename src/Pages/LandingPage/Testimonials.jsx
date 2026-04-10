@@ -1,27 +1,27 @@
 import React from 'react';
 
 const testimonials = [
-  {
-    initials: 'PS',
-    name: 'Priya Sharma',
-    title: 'Software Engineer',
-    review: '"SpendWise has completely transformed how I manage my finances. The AI insights are incredibly accurate and have helped me save over ₹15,000 in just 3 months!"',
-    color: 'bg-teal-500'
-  },
-  {
-    initials: 'RK',
-    name: 'Rahul Kumar',
-    title: 'College Student',
-    review: '"As a student on a tight budget, SpendWise helps me track every rupee. The personalized recommendations are spot-on and the interface is so easy to use!"',
-    color: 'bg-emerald-500'
-  },
-  {
-    initials: 'AD',
-    name: 'Ananya Desai',
-    title: 'Marketing Manager',
-    review: '"The best expense tracking app I\'ve used! The dashboard is beautiful, insights are actionable, and it\'s helped me stay on top of my financial goals effortlessly."',
-    color: 'bg-green-500'
-  }
+    {
+        initials: "PS",
+        name: "Priya Sharma",
+        title: "Software Engineer",
+        review: '"SpendWise has completely transformed how I manage my finances. The personalized insights are incredibly accurate and have helped me save over ₹15,000 in just 3 months!"',
+        color: "bg-teal-500",
+    },
+    {
+        initials: "RK",
+        name: "Rahul Kumar",
+        title: "College Student",
+        review: '"As a student on a tight budget, SpendWise helps me track every rupee. The personalized recommendations are spot-on and the interface is so easy to use!"',
+        color: "bg-emerald-500",
+    },
+    {
+        initials: "AD",
+        name: "Ananya Desai",
+        title: "Marketing Manager",
+        review: "\"The best expense tracking app I've used! The dashboard is beautiful, insights are actionable, and it's helped me stay on top of my financial goals effortlessly.\"",
+        color: "bg-green-500",
+    },
 ];
 
 const Testimonials = () => {

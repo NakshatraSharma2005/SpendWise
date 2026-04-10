@@ -1,30 +1,34 @@
 import React from 'react';
 
 const steps = [
-  {
-    number: '01',
-    icon: '👤',
-    title: 'Sign Up',
-    description: 'Create your free account in less than a minute. No credit card required.',
-  },
-  {
-    number: '02',
-    icon: '📝',
-    title: 'Answer Quick Quiz',
-    description: 'Tell us about your lifestyle and financial goals for personalized insights.',
-  },
-  {
-    number: '03',
-    icon: '📊',
-    title: 'Track Expenses',
-    description: 'Start logging your expenses manually or connect your bank for automatic tracking.',
-  },
-  {
-    number: '04',
-    icon: '💡',
-    title: 'Get Smart Insights',
-    description: 'Receive AI-powered recommendations to save money and reach your goals faster.',
-  },
+    {
+        number: "01",
+        icon: "👤",
+        title: "Sign Up",
+        description:
+            "Create your free account in less than a minute. No credit card required.",
+    },
+    {
+        number: "02",
+        icon: "📝",
+        title: "Answer Quick Quiz",
+        description:
+            "Tell us about your lifestyle and financial goals for personalized insights.",
+    },
+    {
+        number: "03",
+        icon: "📊",
+        title: "Track Expenses",
+        description:
+            "Start logging your expenses manually or connect your bank for automatic tracking.",
+    },
+    {
+        number: "04",
+        icon: "💡",
+        title: "Get Smart Insights",
+        description:
+            "Receive personalized recommendations to save money and reach your goals faster.",
+    },
 ];
 
 const HowItWorks = () => {

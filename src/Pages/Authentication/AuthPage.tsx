@@ -201,8 +201,8 @@ export default function AuthPage() {
                     </h1>
 
                     <p className="text-[#94A3B8] text-lg lg:text-xl mb-10 max-w-md leading-relaxed font-light">
-                        Smart expense tracking with personalized insights tailored
-                        for your lifestyle.
+                        Smart expense tracking with personalized insights
+                        tailored for your lifestyle.
                     </p>
 
                     {/* Badges */}
@@ -307,7 +307,7 @@ export default function AuthPage() {
                                             </div>
                                             <input
                                                 type="text"
-                                                placeholder="John Doe"
+                                                placeholder="Enter your name:"
                                                 value={Name}
                                                 onChange={(e) =>
                                                     setName(e.target.value)
@@ -327,7 +327,7 @@ export default function AuthPage() {
                                             </div>
                                             <input
                                                 type="email"
-                                                placeholder="you@example.com"
+                                                placeholder="Enter your email:"
                                                 value={Email}
                                                 onChange={(e) =>
                                                     setEmail(e.target.value)
@@ -403,7 +403,11 @@ export default function AuthPage() {
                                     <div className="flex justify-center mt-2">
                                         <GoogleLogin
                                             onSuccess={handleGoogleSuccess}
-                                            onError={() => setGlobalError("Google Login Failed")}
+                                            onError={() =>
+                                                setGlobalError(
+                                                    "Google Login Failed",
+                                                )
+                                            }
                                         />
                                     </div>
                                 </form>
@@ -427,7 +431,9 @@ export default function AuthPage() {
                                             <input
                                                 type="email"
                                                 value={Email}
-                                                onChange={(e) => setEmail(e.target.value)}
+                                                onChange={(e) =>
+                                                    setEmail(e.target.value)
+                                                }
                                                 placeholder="you@example.com"
                                                 className="w-full bg-black/20 border border-white/5 text-white text-[15px] rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-[#00E5A8] focus:ring-1 focus:ring-[#00E5A8]/30 transition-all placeholder-gray-600 shadow-inner"
                                             />
@@ -456,7 +462,9 @@ export default function AuthPage() {
                                                         : "password"
                                                 }
                                                 value={Password}
-                                                onChange={(e) => setPassword(e.target.value)}
+                                                onChange={(e) =>
+                                                    setPassword(e.target.value)
+                                                }
                                                 placeholder="••••••••"
                                                 className="w-full bg-black/20 border border-white/5 text-white text-[15px] rounded-xl py-3 pl-11 pr-11 focus:outline-none focus:border-[#00E5A8] focus:ring-1 focus:ring-[#00E5A8]/30 transition-all placeholder-gray-600 shadow-inner"
                                             />
@@ -505,7 +513,11 @@ export default function AuthPage() {
                                     <div className="flex justify-center mt-2">
                                         <GoogleLogin
                                             onSuccess={handleGoogleSuccess}
-                                            onError={() => setGlobalError("Google Login Failed")}
+                                            onError={() =>
+                                                setGlobalError(
+                                                    "Google Login Failed",
+                                                )
+                                            }
                                         />
                                     </div>
                                 </form>
