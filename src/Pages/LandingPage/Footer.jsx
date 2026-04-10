@@ -164,7 +164,7 @@ const Footer = () => {
                         <div>© 2026 SpendWise. All rights reserved.</div>
                         <div>
                             Made with <span className="text-red-500">❤️</span>{" "}
-                            by Nakshatra Sharma
+                            by Nakshatra
                         </div>
                     </div>
                 </div>

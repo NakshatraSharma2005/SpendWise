@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema(
       monthlyBudget: { type: Number, default: 0 },
       savingGoal: { type: Number, default: 0 },
     },
+    categories: { 
+      type: Array, 
+      default: [] 
+    },
   },
   {
     timestamps: true,

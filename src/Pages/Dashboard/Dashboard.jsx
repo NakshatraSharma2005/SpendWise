@@ -12,9 +12,45 @@ import {
     CheckSquare,
     FastForward,
     CheckCircle2,
+    PieChart,
 } from "lucide-react";
 import Onboarding from "../../Components/Onboarding.jsx";
 import { useNavigate } from "react-router-dom";
+
+// HELPER FUNCTION (REQUIRED)
+const buildAutoCategories = (budget) => {
+    const distribution = [
+        { name: "Food", percent: 0.30 },
+        { name: "Transportation", percent: 0.15 },
+        { name: "Entertainment", percent: 0.10 },
+        { name: "Shopping", percent: 0.15 },
+        { name: "Bills", percent: 0.25 },
+        { name: "Healthcare", percent: 0.03 },
+        { name: "others", percent: 0.02 },
+    ];
+
+    let total = 0;
+
+    const categories = distribution.map((item, index) => {
+        const value = Math.round(budget * item.percent);
+        total += value;
+
+        return {
+            id: index + 1,
+            name: item.name,
+            budget: value,
+            spent: 0
+        };
+    });
+
+    const diff = budget - total;
+    if (diff !== 0) {
+        categories[categories.length - 1].budget += diff;
+    }
+
+    return categories;
+};
+
 
 const AnimatedNumber = ({ value }) => {
     const [displayValue, setDisplayValue] = useState(0);
@@ -55,18 +91,26 @@ const Dashboard = () => {
     const [budget, setBudget] = useState(0);
     const [savings, setSavings] = useState(0);
 
-    const [categories, setCategories] = useState([
-        { id: 1, name: "Food", budget: 8000, spent: 0 },
-        { id: 2, name: "Transportation", budget: 3000, spent: 0 },
-        { id: 3, name: "Entertainment", budget: 2000, spent: 0 },
-        { id: 4, name: "Shopping", budget: 5000, spent: 0 },
-        { id: 5, name: "Bills", budget: 10000, spent: 0 },
-        { id: 6, name: "Healthcare", budget: 3000, spent: 0 },
-        { id: 7, name: "others", budget: 1000, spent: 0 },
-    ]);
+    // ✅ categories initial state (REQUIRED)
+    const [categories, setCategories] = useState([]);
+    // ✅ ADD AUTO DISTRIBUTION FLAG (REQUIRED)
+    const [isAutoDistributed, setIsAutoDistributed] = useState(false);
 
     const [expenses, setExpenses] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Edit Modals State
+    const [isProfileEditOpen, setIsProfileEditOpen] = useState(false);
+    const [profileEditForm, setProfileEditForm] = useState({
+        monthlyIncome: 0,
+        monthlyBudget: 0,
+        savingGoal: 0,
+        userType: "working"
+    });
+    const [profileEditErrors, setProfileEditErrors] = useState({});
+
+    const [editingCategory, setEditingCategory] = useState(null);
+    const [categoryEditError, setCategoryEditError] = useState("");
 
     const handleLogout = () => {
         localStorage.removeItem("spendwise_token");
@@ -82,6 +126,9 @@ const Dashboard = () => {
             }
 
             try {
+                let fetchedCategories = null;
+                let fetchedBudget = 0;
+
                 // Fetch User Profile Dashboard Limits
                 const profileRes = await fetch("http://localhost:5000/api/user/profile", {
                     headers: { "Authorization": `Bearer ${token}` }
@@ -95,11 +142,28 @@ const Dashboard = () => {
 
                 if (profileRes.ok) {
                     const profileData = await profileRes.json();
+
+                    const q = profileData.quizData;
+                    if (!q || !q.monthlyIncome || !q.monthlyBudget || !q.savingGoal) {
+                        navigate("/onboarding");
+                        return;
+                    }
+
                     if (profileData.quizData) {
                         setIncome(profileData.quizData.monthlyIncome || 0);
                         setRole(profileData.quizData.userType || "working");
-                        setBudget(profileData.quizData.monthlyBudget || 0);
+                        // 🔴 CRITICAL FIXES: Use fetchedBudget local variable (REQUIRED)
+                        fetchedBudget = profileData.quizData.monthlyBudget || 0;
+                        setBudget(fetchedBudget);
                         setSavings(profileData.quizData.savingGoal || 0);
+                    }
+                    if (profileData.categories && profileData.categories.length > 0) {
+                        fetchedCategories = profileData.categories.map((c, i) => ({
+                             id: c._id || i + 1,
+                             name: c.name,
+                             budget: c.budget,
+                             spent: 0
+                        }));
                     }
                 }
 
@@ -126,8 +190,22 @@ const Dashboard = () => {
                     }));
                     setExpenses(formattedExpenses);
                     
-                    setCategories(prevCategories => {
-                       const newCategories = prevCategories.map(cat => ({ ...cat, spent: 0 }));
+                    // ✅ UPDATE fetchData LOGIC (CORE FIX - REQUIRED)
+                    setCategories(() => {
+                       let base;
+
+                       if (fetchedCategories && fetchedCategories.length > 0) {
+                           base = fetchedCategories;
+                           setIsAutoDistributed(false);
+                       } else if (fetchedBudget > 0) {
+                           base = buildAutoCategories(fetchedBudget);
+                           setIsAutoDistributed(true);
+                       } else {
+                           base = [];
+                       }
+
+                       // ✅ SPENT CALCULATION (REQUIRED)
+                       const newCategories = base.map(cat => ({ ...cat, spent: 0 }));
                        formattedExpenses.forEach(exp => {
                            const cat = newCategories.find(c => c.name === exp.category);
                            if (cat) cat.spent += exp.amount;
@@ -154,7 +232,7 @@ const Dashboard = () => {
     // Derived values
     const totalSpent = categories.reduce((sum, cat) => sum + cat.spent, 0);
     const spendingPercentage =
-        totalSpent === 0 ? 0 : (totalSpent / budget) * 100;
+        budget === 0 ? 0 : (totalSpent / budget) * 100;
 
     const topCategory = categories.reduce((prev, current) => {
         return prev && prev.spent > current.spent ? prev : current;
@@ -203,9 +281,6 @@ const Dashboard = () => {
                     amount: addedExpenseData.amount,
                     category: addedExpenseData.category,
                     date: addedExpenseData.date,
-                    categoryData: categories.find(
-                        (c) => c.name === addedExpenseData.category,
-                    ),
                 };
 
                 setExpenses([expenseToAdd, ...expenses]);
@@ -270,6 +345,102 @@ const Dashboard = () => {
         }
     };
 
+    const openProfileEdit = () => {
+        setProfileEditForm({
+            monthlyIncome: income,
+            monthlyBudget: budget,
+            savingGoal: savings,
+            userType: role || "working"
+        });
+        setProfileEditErrors({});
+        setIsProfileEditOpen(true);
+    };
+
+    const handleSaveProfile = async (e) => {
+        e.preventDefault();
+        
+        if (profileEditForm.monthlyIncome < 0 || profileEditForm.monthlyBudget < 0 || profileEditForm.savingGoal < 0 ||
+            profileEditForm.monthlyIncome === "" || profileEditForm.monthlyBudget === "" || profileEditForm.savingGoal === "") {
+            setProfileEditErrors({ general: "Please enter valid positive values." });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem("spendwise_token");
+            const response = await fetch("http://localhost:5000/api/user/profile", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify(profileEditForm)
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.user && data.user.quizData) {
+                    setIncome(data.user.quizData.monthlyIncome);
+                    setBudget(data.user.quizData.monthlyBudget);
+                    setSavings(data.user.quizData.savingGoal);
+                    setRole(data.user.quizData.userType);
+                } else {
+                    setIncome(parseFloat(profileEditForm.monthlyIncome));
+                    setBudget(parseFloat(profileEditForm.monthlyBudget));
+                    setSavings(parseFloat(profileEditForm.savingGoal));
+                    setRole(profileEditForm.userType);
+                }
+                setIsProfileEditOpen(false);
+            } else {
+                setProfileEditErrors({ general: "Failed to update. Please try again." });
+            }
+        } catch (err) {
+             console.error("Failed to update profile", err);
+             setProfileEditErrors({ general: "Failed to update. Please try again." });
+        }
+    };
+
+    const openCategoryEdit = (cat) => {
+        setEditingCategory({
+             id: cat.id,
+             name: cat.name,
+             budget: cat.budget
+        });
+        setCategoryEditError("");
+    };
+
+    const handleSaveCategory = async (e) => {
+        e.preventDefault();
+        const amt = parseFloat(editingCategory.budget);
+        if (isNaN(amt) || amt < 0 || editingCategory.budget === "") {
+             setCategoryEditError("Enter a valid positive amount");
+             return;
+        }
+
+        try {
+            const token = localStorage.getItem("spendwise_token");
+            const response = await fetch("http://localhost:5000/api/user/category-budget", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ name: editingCategory.name, budget: amt })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    const updatedCategories = categories.map(c => 
+                        c.name === editingCategory.name ? { ...c, budget: amt } : c
+                    );
+                    setCategories(updatedCategories);
+                    setEditingCategory(null);
+                } else {
+                    setCategoryEditError(data.message || "Failed to update. Please try again.");
+                }
+            } else {
+                setCategoryEditError("Failed to update. Please try again.");
+            }
+        } catch (err) {
+             console.error("Failed to update category", err);
+             setCategoryEditError("Failed to update. Please try again.");
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-[#0B1C2C]/5 text-slate-900 font-sans w-[100vw] overflow-x-hidden absolute top-0 left-0 z-50">
             {/* Header */}
@@ -321,9 +492,11 @@ const Dashboard = () => {
                             </h2>
                         </div>
                     </div>
-                    {/* <button className="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors">
+                    <button
+                        onClick={openProfileEdit}
+                        className="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors">
                         Edit
-                    </button> */}
+                    </button>
                 </div>
 
                 {/* Summary Row */}
@@ -342,7 +515,7 @@ const Dashboard = () => {
                             ₹<AnimatedNumber value={budget} />
                         </h3>
                         <p className="text-xs text-slate-400 mt-2">
-                            Across 6 categories
+                            Across {categories.length} categories
                         </p>
                     </div>
 
@@ -423,14 +596,14 @@ const Dashboard = () => {
                                         : savings
                                 }
                             />
-                            {totalSpent > 0 && (
+                            {totalSpent > 0 && savings > 0 && (
                                 <span className="text-sm font-medium text-slate-400 ml-1">
                                     of ₹{savings.toLocaleString()}
                                 </span>
                             )}
                         </h4>
 
-                        {totalSpent > 0 ? (
+                        {totalSpent > 0 && savings > 0 ? (
                             <>
                                 <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-4">
                                     <div
@@ -450,11 +623,7 @@ const Dashboard = () => {
                                     </span>
                                     <span className="text-slate-400">
                                         ₹
-                                        {(
-                                            income -
-                                            totalSpent -
-                                            savings
-                                        ).toLocaleString()}{" "}
+                                        {Math.max(0, (income - totalSpent - savings)).toLocaleString()}{" "}
                                         over goal
                                     </span>
                                 </div>
@@ -496,10 +665,10 @@ const Dashboard = () => {
                             </div>
                         ) : (
                             <div className="flex items-start gap-4 mt-4">
-                                <div className="text-4xl">🍔</div>
+                                <div className="text-4xl">📊</div>
                                 <div>
                                     <h4 className="text-sm font-medium text-slate-500 mb-1">
-                                        {topCategory?.name || "Food"}
+                                        {topCategory?.name || "N/A"}
                                     </h4>
                                     <div className="flex items-baseline gap-2">
                                         <span className="text-2xl font-bold text-orange-600">
@@ -578,9 +747,9 @@ const Dashboard = () => {
                         <div className="absolute inset-0 px-12 pb-8 pt-8 flex items-end justify-between pl-20 pr-12">
                             {categories.map((cat, i) => {
                                 const budgetHeightPct =
-                                    (cat.budget / 10000) * 100;
+                                    (cat.budget / (Math.max(...categories.map(c => c.budget)) || 10000)) * 100;
                                 const spentHeightPct =
-                                    (cat.spent / 10000) * 100;
+                                    (cat.spent / (Math.max(...categories.map(c => c.budget)) || 10000)) * 100;
 
                                 return (
                                     <div
@@ -666,23 +835,59 @@ const Dashboard = () => {
 
                 {/* Category Budgets */}
                 <div>
-                    <h3 className="text-sm font-semibold text-slate-900 mb-3 mt-6">
-                        Category Budgets
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="flex flex-col gap-2 mb-4 mt-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-semibold text-slate-900">
+                                Category Budgets
+                            </h3>
+                        </div>
+                        {categories.reduce((s, c) => s + c.budget, 0) > budget && (
+                            <div className="text-xs font-semibold text-red-600 bg-red-50/80 p-3 rounded-xl flex items-center gap-2 border border-red-100 shadow-sm animate-in fade-in slide-in-from-top-1">
+                                <AlertCircle size={18} className="shrink-0" />
+                                <div>
+                                    <p>Your category budgets exceed your total monthly budget.</p>
+                                    <p className="opacity-90 font-medium">Remaining to allocate: -₹{(categories.reduce((s, c) => s + c.budget, 0) - budget).toLocaleString()}</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    
+                    {categories.length === 0 ? (
+                        <div className="bg-white/95 backdrop-blur-sm rounded-xl border border-[#0B1C2C]/10 p-8 text-center shadow-sm animate-in fade-in">
+                             <div className="flex justify-center mb-3 text-emerald-500">
+                                <PieChart size={32} />
+                             </div>
+                             <h4 className="font-semibold text-slate-700 mb-2">Budgets Auto-Allocating...</h4>
+                             <p className="text-sm text-slate-500 max-w-sm mx-auto">Budgets are auto-distributed based on your income. You can customize anytime.</p>
+                        </div>
+                    ) : (
+                        <>
+                             {/* ✅ BANNER CONDITION (REQUIRED - ONLY isAutoDistributed) */}
+                             {isAutoDistributed && (
+                                <div className="text-xs font-semibold text-blue-700 bg-blue-50/80 p-3 rounded-xl flex items-center gap-2 border border-blue-100 shadow-sm animate-in fade-in slide-in-from-top-1 mb-4">
+                                    <PieChart size={16} className="shrink-0" />
+                                    <p>Budgets are automatically distributed based on your monthly budget. You can edit them anytime.</p>
+                                </div>
+                            )}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {categories.map((cat) => {
                             const usedPct = (cat.spent / cat.budget) * 100;
                             const isExceeded = cat.spent > cat.budget;
+                            const isTotalOverBudget = categories.reduce((s, c) => s + c.budget, 0) > budget;
 
                             return (
                                 <div
                                     key={cat.id}
-                                    className="bg-white/95 backdrop-blur-sm rounded-xl border border-[#0B1C2C]/10 shadow-sm p-5 transition-all duration-300 hover:shadow-md hover:-translate-y-1 group">
+                                    className={`bg-white/95 backdrop-blur-sm rounded-xl border ${isTotalOverBudget ? "border-red-200" : "border-[#0B1C2C]/10"} shadow-sm p-5 transition-all duration-300 hover:shadow-md hover:-translate-y-1 group`}>
                                     <div className="flex justify-between items-start mb-2">
-                                        <h4 className="font-semibold text-slate-900">
+                                        <h4 className={`font-semibold ${isTotalOverBudget ? "text-red-700" : "text-slate-900"}`}>
                                             {cat.name}
                                         </h4>
-                                        <button className="text-slate-300 hover:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={() =>
+                                                openCategoryEdit(cat)
+                                            }
+                                            className="text-slate-300 hover:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <Edit2 size={14} />
                                         </button>
                                     </div>
@@ -691,7 +896,7 @@ const Dashboard = () => {
                                             ₹
                                             <AnimatedNumber value={cat.spent} />
                                         </span>
-                                        <span className="text-xs text-slate-500 font-medium">
+                                        <span className={`text-xs font-medium ${isTotalOverBudget ? "text-red-500" : "text-slate-500"}`}>
                                             of ₹{cat.budget.toLocaleString()}
                                         </span>
                                     </div>
@@ -721,6 +926,8 @@ const Dashboard = () => {
                             );
                         })}
                     </div>
+                    </>
+                    )}
                 </div>
 
                 {/* Recent Expenses List */}
@@ -946,6 +1153,226 @@ const Dashboard = () => {
                                     className="flex-1 py-3 bg-emerald-500 shadow-[0_0_10px_rgba(0,229,168,0.2)] text-white rounded-xl font-semibold text-sm hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
                                     <Plus size={16} />
                                     Add Expense
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+            {/* Profile Edit Modal */}
+            {isProfileEditOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div
+                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300"
+                        onClick={() => setIsProfileEditOpen(false)}
+                    />
+                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl w-full max-md m-4 relative z-10 shadow-2xl animate-in fade-in zoom-in-95 slide-in-from-bottom-8 duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden">
+                        <div className="px-6 py-4 flex justify-between items-center border-b border-slate-300/60">
+                            <h2 className="text-lg font-bold text-slate-900">
+                                Edit Profile
+                            </h2>
+                            <button
+                                onClick={() => setIsProfileEditOpen(false)}
+                                className="text-slate-400 hover:text-slate-600 transition-colors p-1">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <form
+                            onSubmit={handleSaveProfile}
+                            className="p-6 space-y-5">
+                            {profileEditErrors.general && (
+                                <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium animate-in fade-in">
+                                    <AlertCircle
+                                        size={16}
+                                        className="inline mr-2"
+                                    />
+                                    {profileEditErrors.general}
+                                </div>
+                            )}
+                            <div className="space-y-1.5 relative">
+                                <label className="text-xs font-semibold text-slate-600">
+                                    Monthly Income
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
+                                        ₹
+                                    </span>
+                                    <input
+                                        type="number"
+                                        value={profileEditForm.monthlyIncome}
+                                        onChange={(e) =>
+                                            setProfileEditForm({
+                                                ...profileEditForm,
+                                                monthlyIncome: e.target.value,
+                                            })
+                                        }
+                                        className="w-full border border-slate-300/60 focus:border-blue-500 focus:ring-blue-100 rounded-xl pl-8 pr-4 py-2.5 text-sm outline-none focus:ring-2 transition-all font-medium text-slate-900"
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5 relative">
+                                <label className="text-xs font-semibold text-slate-600">
+                                    Monthly Budget
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
+                                        ₹
+                                    </span>
+                                    <input
+                                        type="number"
+                                        value={profileEditForm.monthlyBudget}
+                                        onChange={(e) =>
+                                            setProfileEditForm({
+                                                ...profileEditForm,
+                                                monthlyBudget: e.target.value,
+                                            })
+                                        }
+                                        className="w-full border border-slate-300/60 focus:border-blue-500 focus:ring-blue-100 rounded-xl pl-8 pr-4 py-2.5 text-sm outline-none focus:ring-2 transition-all font-medium text-slate-900"
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5 relative">
+                                <label className="text-xs font-semibold text-slate-600">
+                                    Savings Goal
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
+                                        ₹
+                                    </span>
+                                    <input
+                                        type="number"
+                                        value={profileEditForm.savingGoal}
+                                        onChange={(e) =>
+                                            setProfileEditForm({
+                                                ...profileEditForm,
+                                                savingGoal: e.target.value,
+                                            })
+                                        }
+                                        className="w-full border border-slate-300/60 focus:border-blue-500 focus:ring-blue-100 rounded-xl pl-8 pr-4 py-2.5 text-sm outline-none focus:ring-2 transition-all font-medium text-slate-900"
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-slate-600">
+                                    User Type
+                                </label>
+                                <select
+                                    value={profileEditForm.userType}
+                                    onChange={(e) =>
+                                        setProfileEditForm({
+                                            ...profileEditForm,
+                                            userType: e.target.value,
+                                        })
+                                    }
+                                    className="w-full border border-slate-300/60 focus:border-blue-500 focus:ring-blue-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 transition-all bg-white/95 font-medium text-slate-900">
+                                    <option value="student">Student</option>
+                                    <option value="working">
+                                        Working Professional
+                                    </option>
+                                </select>
+                            </div>
+                            <div className="pt-2 flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsProfileEditOpen(false)}
+                                    className="flex-1 py-3 border border-slate-300/60 text-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-50 transition-colors">
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 py-3 bg-emerald-500 shadow-[0_0_10px_rgba(0,229,168,0.2)] text-white rounded-xl font-semibold text-sm hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Category Edit Modal */}
+            {editingCategory && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div
+                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300"
+                        onClick={() => setEditingCategory(null)}
+                    />
+                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl w-full max-w-sm m-4 relative z-10 shadow-2xl animate-in fade-in zoom-in-95 slide-in-from-bottom-8 duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden">
+                        <div className="px-6 py-4 flex justify-between items-center border-b border-slate-300/60">
+                            <h2 className="text-lg font-bold text-slate-900">
+                                Edit Budget
+                            </h2>
+                            <button
+                                onClick={() => setEditingCategory(null)}
+                                className="text-slate-400 hover:text-slate-600 transition-colors p-1">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <form
+                            onSubmit={handleSaveCategory}
+                            className="p-6 space-y-5">
+                            {categoryEditError && (
+                                <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium animate-in fade-in">
+                                    <AlertCircle
+                                        size={16}
+                                        className="inline mr-2"
+                                    />
+                                    {categoryEditError}
+                                </div>
+                            )}
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-slate-600">
+                                    Category
+                                </label>
+                                <input
+                                    type="text"
+                                    readOnly
+                                    value={editingCategory.name}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-500 outline-none"
+                                />
+                            </div>
+                            <div className="space-y-1.5 relative px-1">
+                                <label className="text-xs font-semibold text-slate-600">
+                                    Budget Amount
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
+                                        ₹
+                                    </span>
+                                    <input
+                                        type="number"
+                                        value={editingCategory.budget}
+                                        onChange={(e) => {
+                                            setEditingCategory({
+                                                ...editingCategory,
+                                                budget: e.target.value,
+                                            });
+                                            setCategoryEditError("");
+                                        }}
+                                        className="w-full border border-slate-300/60 focus:border-blue-500 focus:ring-blue-100 rounded-xl pl-8 pr-4 py-2.5 text-sm outline-none focus:ring-2 transition-all font-medium text-slate-900"
+                                    />
+                                </div>
+                                {(() => {
+                                    const currentAmt = parseFloat(editingCategory.budget) || 0;
+                                    const otherTotals = categories.reduce((sum, c) => sum + (c.name === editingCategory.name ? 0 : c.budget), 0);
+                                    return (otherTotals + currentAmt) > budget && (
+                                        <p className="text-[11px] font-semibold text-amber-600 flex items-center gap-1 mt-1.5 animate-in fade-in">
+                                            <AlertCircle size={12} />
+                                            This exceeds your total budget
+                                        </p>
+                                    );
+                                })()}
+                            </div>
+                            <div className="pt-2 flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingCategory(null)}
+                                    className="flex-1 py-3 border border-slate-300/60 text-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-50 transition-colors">
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 py-3 bg-emerald-500 shadow-[0_0_10px_rgba(0,229,168,0.2)] text-white rounded-xl font-semibold text-sm hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95">
+                                    Save Changes
                                 </button>
                             </div>
                         </form>

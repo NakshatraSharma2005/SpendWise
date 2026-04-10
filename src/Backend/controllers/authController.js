@@ -34,6 +34,8 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    console.log("Hashed Password:", hashedPassword);
+
     // Create user
     const user = await User.create({
       name,
@@ -66,7 +68,13 @@ const loginUser = async (req, res) => {
     // Check for user email
     const user = await User.findOne({ email });
 
-    if (user && user.password && (await bcrypt.compare(password, user.password))) {
+    if (!user && !user.password) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const isPasswordSame = await bcrypt.compare(password, user.password) ;
+
+    if (isPasswordSame) {
       res.json({
         _id: user.id,
         name: user.name,
