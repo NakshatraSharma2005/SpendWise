@@ -445,11 +445,7 @@ export default function AuthPage() {
                                             <label className="text-[13px] font-semibold text-[#94A3B8]">
                                                 Password
                                             </label>
-                                            <button
-                                                type="button"
-                                                className="text-[12px] font-bold text-[#00E5A8] hover:underline hover:brightness-110 transition-colors">
-                                                Forgot Password?
-                                            </button>
+                                            
                                         </div>
                                         <div className="relative group">
                                             <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-gray-500 group-focus-within:text-[#00E5A8] transition-colors">
