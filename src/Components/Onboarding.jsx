@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Wallet, IndianRupee, Target, CheckCircle, Loader2 } from "lucide-react";
+import {
+    Wallet,
+    IndianRupee,
+    Target,
+    CheckCircle,
+    Loader2,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Onboarding() {
@@ -18,15 +24,47 @@ export default function Onboarding() {
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [renderStep, setRenderStep] = useState(1);
 
+    const [error, setError] = useState("");
+
+    // const handleNext = () => {
+    //     if (step === 6) return; // Final screen
+
+    //     setIsTransitioning(true);
+    //     setTimeout(() => {
+    //         setRenderStep(step + 1);
+    //         setStep(step + 1);
+    //         setIsTransitioning(false);
+    //     }, 400); // Wait 400ms for out transition
+    // };
+
+
     const handleNext = () => {
-        if (step === 6) return; // Final screen
+        const incomeValue = Number(income);
+        const budgetValue = Number(budget);
+        const savingsValue = Number(savings);
+
+        if (step === 6) return;
+
+        // Step 3 Validation
+        if (renderStep === 3 && budgetValue > incomeValue) {
+            setError("Budget cannot be greater than monthly income.");
+            return;
+        }
+
+        // Step 5 Validation
+        if (renderStep === 5 && budgetValue + savingsValue > incomeValue) {
+            setError("Budget + Savings cannot be greater than monthly income.");
+            return;
+        }
+
+        setError("");
 
         setIsTransitioning(true);
         setTimeout(() => {
             setRenderStep(step + 1);
             setStep(step + 1);
             setIsTransitioning(false);
-        }, 400); // Wait 400ms for out transition
+        }, 400);
     };
 
     const isStepValid = () => {
@@ -149,9 +187,10 @@ export default function Onboarding() {
                                         }
                                         placeholder="5000"
                                         value={income}
-                                        onChange={(e) =>
-                                            setIncome(e.target.value)
-                                        }
+                                        onChange={(e) => {
+                                            setIncome(e.target.value);
+                                            setError("");
+                                        }}
                                         subtitle="Enter your estimated monthly income in INR"
                                     />
                                 </div>
@@ -168,9 +207,10 @@ export default function Onboarding() {
                                         }
                                         placeholder="3000"
                                         value={budget}
-                                        onChange={(e) =>
-                                            setBudget(e.target.value)
-                                        }
+                                        onChange={(e) => {
+                                            setBudget(e.target.value);
+                                            setError("");
+                                        }}
                                         subtitle="How much do you plan to spend each month?"
                                     />
                                 </div>
@@ -225,9 +265,10 @@ export default function Onboarding() {
                                         }
                                         placeholder="1000"
                                         value={savings}
-                                        onChange={(e) =>
-                                            setSavings(e.target.value)
-                                        }
+                                        onChange={(e) => {
+                                            setSavings(e.target.value);
+                                            setError("");
+                                        }}
                                         subtitle="How much would you like to save each month?"
                                         hasSpinners
                                     />
@@ -247,6 +288,13 @@ export default function Onboarding() {
                         )}
 
                         {/* Continue Button */}
+                        {renderStep === 3 || renderStep === 5
+                            ? error && (
+                                  <p className="text-red-400 text-sm mb-4 font-medium text-center">
+                                      {error}
+                                  </p>
+                              )
+                            : null}
                         {renderStep <= 5 && (
                             <div className="mt-8">
                                 <button
@@ -430,14 +478,14 @@ function AnalyzingScreen({
                             }),
                         },
                     );
-                    
+
                     navigate("/dashboard");
-                } catch(err) {
+                } catch (err) {
                     console.error(err);
                     navigate("/dashboard");
                 }
             };
-            
+
             const timer = setTimeout(() => {
                 saveQuizData();
             }, 3000);

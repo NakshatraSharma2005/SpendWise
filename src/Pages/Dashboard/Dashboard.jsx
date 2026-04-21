@@ -471,6 +471,9 @@ const Dashboard = () => {
 
     const handleSaveProfile = async (e) => {
         e.preventDefault();
+        const incomeValue = Number(profileEditForm.monthlyIncome);
+        const budgetValue = Number(profileEditForm.monthlyBudget);
+        const savingsValue = Number(profileEditForm.savingGoal);
 
         if (
             profileEditForm.monthlyIncome < 0 ||
@@ -482,6 +485,22 @@ const Dashboard = () => {
         ) {
             setProfileEditErrors({
                 general: "Please enter valid positive values.",
+            });
+            return;
+        }
+        // Budget > Income
+        if (budgetValue > incomeValue) {
+            setProfileEditErrors({
+                general: "Budget cannot be greater than monthly income.",
+            });
+            return;
+        }
+
+        // Budget + Savings > Income
+        if (budgetValue + savingsValue > incomeValue) {
+            setProfileEditErrors({
+                general:
+                    "Budget + Savings cannot be greater than monthly income.",
             });
             return;
         }
@@ -525,7 +544,7 @@ const Dashboard = () => {
                 general: "Failed to update. Please try again.",
             });
         }
-    };
+    };;
 
     const openCategoryEdit = (cat) => {
         setEditingCategory({
